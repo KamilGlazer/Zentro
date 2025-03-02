@@ -18,7 +18,7 @@ const LoginPage = () => {
         try{
             const data = await login({email,password});
             dispatch(loginSuccess(data));
-            navigate("/");
+            navigate("/dashboard");
         }catch (err) {
             dispatch(loginFailure(err.response?.data?.message || "Blad logowania"));
         }

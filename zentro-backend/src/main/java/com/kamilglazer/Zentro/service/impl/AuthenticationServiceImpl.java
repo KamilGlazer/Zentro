@@ -10,6 +10,8 @@ import com.kamilglazer.Zentro.model.User;
 import com.kamilglazer.Zentro.repository.UserRepository;
 import com.kamilglazer.Zentro.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,7 +44,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
 
         return JwtResponse.builder()
-                .jwt(jwtToken)
+                .token(jwtToken)
                 .role(user.getRole())
                 .message("Registration successful")
                 .build();
@@ -64,9 +66,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException("Invalid email or password"));
         var jwtToken = jwtService.generateToken(user);
         return JwtResponse.builder()
-                .jwt(jwtToken)
+                .token(jwtToken)
                 .role(user.getRole())
                 .message("Login successful")
                 .build();
+    }
+
+    @Override
+    public ResponseEntity<?> validateToken(String token) {
+        try{
+            String username = jwtService.extractUsername(token);
+            var user = userRepository.findByEmail(username).orElseThrow(() -> new UserNotFoundException("Invalid email or password"));
+
+            if(!jwtService.isTokenValid(token,user)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+            }
+            return ResponseEntity.ok("Token is valid");
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
     }
 }

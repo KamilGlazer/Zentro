@@ -1,5 +1,6 @@
 package com.kamilglazer.Zentro.controller;
 
+import com.kamilglazer.Zentro.config.JwtService;
 import com.kamilglazer.Zentro.dto.request.LoginRequest;
 import com.kamilglazer.Zentro.dto.request.RegisterRequest;
 import com.kamilglazer.Zentro.dto.response.JwtResponse;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthenticationService authenticationService;
+    private final JwtService jwtService;
 
     @PostMapping("/register")
     public ResponseEntity<JwtResponse> register(@RequestBody RegisterRequest request) {
@@ -24,6 +26,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> register(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authenticationService.login(request));
+    }
+
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
+        String token = jwtService.getToken(authHeader);
+        return authenticationService.validateToken(token);
     }
 
 }

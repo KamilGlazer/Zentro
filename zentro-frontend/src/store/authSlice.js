@@ -22,6 +22,7 @@ const authSlice = createSlice({
             state.user = action.payload.user;
             state.token = action.payload.token;
             localStorage.setItem("token",action.payload.token);
+            console.log("TOKEN ZAPISANY DO LOCALSTORAGE:", localStorage.getItem("token"));
         },
         loginFailure: (state,action) => {
             state.loading = false;
